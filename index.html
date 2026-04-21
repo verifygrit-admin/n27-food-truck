@@ -193,6 +193,44 @@
     }
 
     .leaflet-tooltip:before { display: none; }
+
+    /* N27 marker cluster icon — lime with ivory text */
+    .n27-cluster {
+      background: var(--n27-lime);
+      color: var(--n27-ivory);
+      border-radius: 50%;
+      border: 2px solid var(--n27-ivory);
+      box-shadow: 0 2px 6px rgba(10,10,10,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Site popup addendum */
+    .n27-popup-address {
+      color: var(--n27-mute);
+      font-size: 11px;
+      margin: -2px 0 8px 0;
+      font-style: italic;
+    }
+    .n27-popup-tier {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--n27-lime-dark);
+      margin: 2px 0 6px 0;
+    }
+    .n27-popup-meta {
+      font-size: 12px;
+      color: var(--n27-ink);
+      margin-top: 4px;
+    }
+    .n27-popup-meta strong { color: var(--n27-lime-dark); }
   </style>
 </head>
 <body>
@@ -257,7 +295,8 @@
       fetch('data/zones.json').then(r => r.json()),
       fetch('data/neighborhoods.geojson').then(r => r.json()),
       fetch('data/adjacent-zips.geojson').then(r => r.json()),
-    ]).then(([zonesDoc, neighborhoods, adjZips]) => {
+      fetch('data/sites.geojson').then(r => r.json()),
+    ]).then(([zonesDoc, neighborhoods, adjZips, sites]) => {
       const zones = zonesDoc.zones;
 
       // Build name → zoneKey lookups. zones.json is single source of truth.
@@ -368,7 +407,7 @@
         ),
       }).addTo(map);
 
-      // Report
+      // Report polygon layers
       const matched = neighborhoods.features.length - unmatched.length;
       console.log(
         `[N27] Layers styled. neighborhoods: ${matched}/${neighborhoods.features.length} matched, ` +
@@ -380,7 +419,59 @@
         console.log('[N27] All BPDA polygons matched to a zone.');
       }
 
-      // Fit to combined bounds
+      // ---- Public sites as clustered markers ----
+      const SITE_COUNT_AUTHORITATIVE = sites.metadata && sites.metadata.site_count || sites.features.length;
+
+      function siteMarker(lngLat) {
+        return L.circleMarker(L.latLng(lngLat[1], lngLat[0]), {
+          radius: 7,
+          fillColor: '#4A5D3A',
+          fillOpacity: 1,
+          color: '#F5EEE3',
+          weight: 1.5,
+        });
+      }
+
+      function sitePopupHTML(p) {
+        const tierLabel = p.tier === 1 ? 'Tier 1 · Prime' : p.tier === 2 ? 'Tier 2 · Commercial' : 'Tier 3 · Neighborhood';
+        const slotLabel = String(p.time_slots || '').split(',').map(s => s.trim()).filter(Boolean).join(' · ');
+        const capLabel = p.capacity === 1 ? '1 truck slot' : `${p.capacity} concurrent truck slots`;
+        return `
+          <div class="n27-popup">
+            <h3>${escapeHTML(p.name)}</h3>
+            <div class="n27-popup-address">${escapeHTML(p.address)}</div>
+            <div class="n27-popup-tier">${escapeHTML(tierLabel)}</div>
+            <div class="n27-popup-meta">Slots: <strong>${escapeHTML(slotLabel || 'not scheduled')}</strong></div>
+            <div class="n27-popup-meta">Capacity: <strong>${escapeHTML(capLabel)}</strong></div>
+          </div>`;
+      }
+
+      const clusterLayer = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        maxClusterRadius: 40,
+        iconCreateFunction: cluster => {
+          const count = cluster.getChildCount();
+          const size = count < 5 ? 32 : count < 10 ? 38 : 44;
+          return L.divIcon({
+            html: `<div class="n27-cluster" style="width:${size}px;height:${size}px;">${count}</div>`,
+            className: 'n27-cluster-wrapper',
+            iconSize: L.point(size, size),
+          });
+        },
+      });
+
+      sites.features.forEach(f => {
+        const m = siteMarker(f.geometry.coordinates);
+        m.bindTooltip(`<strong>${escapeHTML(f.properties.name)}</strong>`, { sticky: true, direction: 'top' });
+        m.bindPopup(sitePopupHTML(f.properties), { maxWidth: 300, minWidth: 220 });
+        clusterLayer.addLayer(m);
+      });
+      clusterLayer.addTo(map);
+
+      console.log(`[N27] Public sites rendered. sites: ${sites.features.length}/${SITE_COUNT_AUTHORITATIVE}`);
+
+      // Fit to combined bounds of polygons only (not sites — they're all inside anyway)
       const group = L.featureGroup([nbhdLayer, zipLayer]);
       map.fitBounds(group.getBounds(), { padding: [20, 20] });
     }).catch(err => {
