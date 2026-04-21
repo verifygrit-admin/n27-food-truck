@@ -1,22 +1,27 @@
-# N27 Food Truck TAM Map
+# N27 Investor Site &amp; Food-Truck TAM Map
 
-An interactive Leaflet map visualizing the Greater Boston food-truck total addressable market for **Number 20 Seven LLC (N27)**. The map pairs a six-zone choropleth of N27's Boston deployment thesis with the 13 city-designated active public vending sites, so a prospectus reader can see at a glance where the strategy places trucks and where the city currently permits them.
+This repo contains the **Number 20 Seven LLC (N27)** investor site and the standalone Greater Boston food-truck TAM map it embeds. The landing page (`index.html`) walks an investor through thesis, market, TAM, model, a 16-slide deck, and ask. The map (`tam-map.html`) stands alone as a Leaflet visualization pairing a six-zone choropleth of N27's Boston deployment thesis with the 13 city-designated active public vending sites. Shared design tokens live in `colors_and_type.css`; the design system is documented in `docs/DESIGN_SYSTEM.md`.
 
 > Live site: _coming soon once GitHub Pages is enabled_
 
 ## Run locally
 
-The map reads its GeoJSON and `zones.json` files with `fetch()`. Chrome and most modern browsers block `fetch()` from `file://` URLs for security reasons, so opening `tam-map.html` directly from Finder/Explorer will usually leave you staring at an empty basemap. Serve over HTTP instead:
+The landing page embeds the map via iframe, and the map itself reads GeoJSON with `fetch()`. Chrome and most modern browsers block `fetch()` from `file://` URLs, so opening HTML files directly from Finder/Explorer will leave you staring at an empty basemap. Serve over HTTP instead:
 
 ```bash
 # from the repo root
 python -m http.server 8000
-# then open http://localhost:8000/tam-map.html in your browser
 ```
 
-Any static server works (`npx serve`, `caddy file-server`, `php -S localhost:8000`). Do not use a build tool — there isn't one.
+Then open in your browser:
 
-> **Note:** there is intentionally no `index.html` at the repo root. The map lives at `/tam-map.html`. The root `index.html` slot is reserved for a full N27 investor site that will be integrated in a later pass. Visiting the bare Pages URL before that integration will return 404 — visit the `/tam-map.html` path directly.
+| URL | What you get |
+|---|---|
+| `http://localhost:8000/` | Investor landing page (hero, thesis, TAM iframe, deck, ask) |
+| `http://localhost:8000/tam-map.html` | Standalone map at the repo root |
+| `http://localhost:8000/ui_kits/tam-map/` | The embedded copy of the map that the landing page iframes in |
+
+Any static server works (`npx serve`, `caddy file-server`, `php -S localhost:8000`). No build step.
 
 ## Data provenance
 
@@ -76,6 +81,8 @@ Monochrome plus one accent. Resist introducing additional hues.
 
 **Red (`#990011`) is reserved for city-designated active public vending sites only.** It appears on the 13 site markers, the marker-cluster badges, and the matching dot in the legend's "Public sites" row. Do not use it elsewhere in the map — not for zones, not for alerts, not for typography, not for UI chrome. One color, one meaning. Breaking this rule causes brand drift.
 
+The full design system (colors, typography, spacing, layout primitives shared between the landing page and the map) is documented in `docs/DESIGN_SYSTEM.md`. The canonical token file is `colors_and_type.css` at repo root.
+
 ### Zone color ramp
 
 Single-hue lime family, six stops dark-to-light.
@@ -104,20 +111,34 @@ Cinzel is loaded from Google Fonts with the `display=swap` hint so the page rend
 
 ```
 n27-food-truck/
-├── tam-map.html        ← HTML scaffold for the map (served at /tam-map.html)
-├── styles.css          ← All CSS (N27 palette, panels, popups, responsive)
-├── app.js              ← All JS (map init, layers, legend, filter control)
-├── README.md           ← you are here
+├── index.html                    ← Investor landing page
+├── site.css                      ← Landing-page layout styles
+├── deck-part{1,2,3}.jsx          ← 16-slide deck (React + Babel, rendered inline in index.html)
+├── colors_and_type.css           ← Shared design tokens (palette, typography, utilities)
+├── tam-map.html                  ← Standalone TAM map at the repo root
+├── styles.css                    ← Map CSS (N27 palette, panels, popups, responsive)
+├── app.js                        ← Map JS (init, layers, legend, filter control)
+├── assets/                       ← Brand SVGs (lockup, seal, star)
+├── ui_kits/tam-map/              ← Embedded copy of the map that index.html iframes
+│   ├── index.html
+│   ├── app.js                    ← byte-identical to repo-root app.js
+│   ├── tam-map-styles.css        ← byte-identical to repo-root styles.css (renamed)
+│   └── data/                     ← byte-identical to repo-root data/
+├── docs/
+│   ├── DESIGN_SYSTEM.md          ← Full design system documentation
+│   └── N27_Brand_Guide.md        ← Brand reference
+├── handoff/                      ← Historical: the self-contained bundle sent to Claude Design for integration
+├── data/
+│   ├── neighborhoods.geojson
+│   ├── adjacent-zips.geojson
+│   ├── sites.geojson
+│   └── zones.json
+├── README.md
 ├── .gitignore
-├── .nojekyll           ← disables Jekyll processing on GitHub Pages
-└── data/
-    ├── neighborhoods.geojson
-    ├── adjacent-zips.geojson
-    ├── sites.geojson
-    └── zones.json
+└── .nojekyll
 ```
 
-The repo root has no `index.html` by design; the investor site that will live there is a separate deliverable.
+The map data currently exists in two locations (`data/` at repo root for the standalone map, `ui_kits/tam-map/data/` for the embedded copy). They are byte-identical at commit time; a future cleanup pass may consolidate to one canonical location if we want to simplify.
 
 ## License
 

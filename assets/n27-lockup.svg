@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 210" aria-labelledby="t"><title id="t">Number 20 Seven LLC lockup</title>
+  
+  <g transform="translate(260 34) scale(1.4)">
+    <path class="star" d="M0 -12 L3.53 -3.71 12.47 -2.53 5.87 3.53 7.53 12.47 0 8.24 -7.53 12.47 -5.87 3.53 -12.47 -2.53 -3.53 -3.71 Z"></path>
+  </g>
+  <text class="name" x="260" y="92" text-anchor="middle" font-size="28">NUMBER 20 SEVEN</text>
+  <text class="llc" x="260" y="118" text-anchor="middle" font-size="13">L L C</text>
+  <line class="rule" x1="190" y1="138" x2="330" y2="138"></line>
+  <text class="tag" x="260" y="164" text-anchor="middle" font-size="13">REAL ESTATE · RESTAURANTS · MOBILE FOOD</text>
+</svg>

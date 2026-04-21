@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" aria-labelledby="t"><title id="t">Number 20 Seven LLC — ivory on black</title>
+  <rect width="520" height="140" fill="#0A0A0A"></rect>
+  
+  <g transform="translate(260 24)">
+    <path class="star" d="M0 -10 L2.94 -3.09 10.39 -2.11 4.89 2.94 6.27 10.39 0 6.87 -6.27 10.39 -4.89 2.94 -10.39 -2.11 -2.94 -3.09 Z"></path>
+  </g>
+  <text class="name" x="260" y="66" text-anchor="middle" font-size="22">NUMBER 20 SEVEN</text>
+  <text class="llc" x="260" y="88" text-anchor="middle" font-size="11">L L C</text>
+  <line class="rule" x1="215" y1="102" x2="305" y2="102"></line>
+  <text class="tag" x="260" y="124" text-anchor="middle" font-size="11">REAL ESTATE · RESTAURANTS · MOBILE FOOD</text>
+</svg>

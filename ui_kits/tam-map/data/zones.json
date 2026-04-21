@@ -1,0 +1,123 @@
+{
+  "$schema_notes": "N27 deployment zones for Greater Boston food truck TAM. Each zone keys into one of: (a) a list of BPDA neighborhood names that must match data/neighborhoods.geojson exactly, or (b) a list of ZCTA5 codes that must match data/adjacent-zips.geojson. docs_only_subregions are named sub-areas referenced in the N27 prospectus that do not exist as distinct BPDA polygons — they roll up into the listed BPDA parents and are documented here for provenance only. Total truck_capacity across all active zones equals 50.",
+  "zones": {
+    "downtown_core": {
+      "label": "Downtown core",
+      "color": "#2C3722",
+      "demand_driver": "Daytime workforce, tourism",
+      "truck_capacity": 12,
+      "neighborhoods": [
+        "Downtown",
+        "South Boston Waterfront",
+        "Chinatown"
+      ],
+      "docs_only_subregions": [
+        "Financial District",
+        "Faneuil Hall",
+        "Seaport",
+        "Theatre District"
+      ]
+    },
+    "innovation_corridor": {
+      "label": "Innovation corridor",
+      "color": "#4A5D3A",
+      "demand_driver": "Tech & life-sci lunch, campus",
+      "truck_capacity": 3,
+      "neighborhoods": [
+        "Allston"
+      ],
+      "docs_only_subregions": [
+        "Kendall Square (Cambridge — represented in adjacent zip 02139/02142)",
+        "Cambridge Crossing (Cambridge — represented in adjacent zip 02142)"
+      ]
+    },
+    "medical_academic": {
+      "label": "Medical-academic",
+      "color": "#6B8257",
+      "demand_driver": "Hospital shifts, late-night",
+      "truck_capacity": 6,
+      "neighborhoods": [
+        "Longwood",
+        "Mission Hill",
+        "Fenway"
+      ]
+    },
+    "neighborhood_density": {
+      "label": "Neighborhood density",
+      "color": "#8FA577",
+      "demand_driver": "Residential + events",
+      "truck_capacity": 8,
+      "neighborhoods": [
+        "South End",
+        "Jamaica Plain",
+        "Dorchester",
+        "Roslindale",
+        "South Boston"
+      ]
+    },
+    "entertainment_venues": {
+      "label": "Entertainment & venues",
+      "color": "#B4C59D",
+      "demand_driver": "Game/concert crowds",
+      "truck_capacity": 7,
+      "neighborhoods": [
+        "West End",
+        "Back Bay"
+      ]
+    },
+    "adjacent_zip_expansion": {
+      "label": "Adjacent zip expansion",
+      "color": "#D4DEC1",
+      "demand_driver": "New zoning, lower rent",
+      "truck_capacity": 14,
+      "zips": [
+        "02139",
+        "02142",
+        "02143",
+        "02144",
+        "02150",
+        "02151",
+        "02169"
+      ]
+    },
+    "unassigned_future": {
+      "label": "Outside current TAM",
+      "color": "#D4D4D4",
+      "opacity": 0.4,
+      "demand_driver": "Outside current TAM — future expansion candidate",
+      "truck_capacity": 0,
+      "neighborhoods": [
+        "Bay Village",
+        "Beacon Hill",
+        "Brighton",
+        "Charlestown",
+        "East Boston",
+        "Harbor Islands",
+        "Hyde Park",
+        "Leather District",
+        "Mattapan",
+        "North End",
+        "Roxbury",
+        "West Roxbury"
+      ]
+    }
+  },
+  "totals": {
+    "bpda_polygons_in_active_zones": 14,
+    "bpda_polygons_in_unassigned": 12,
+    "bpda_polygons_total": 26,
+    "docs_only_subregions_referenced": 6,
+    "docs_only_note": "Financial District, Faneuil Hall, Seaport, Theatre District (in downtown_core) and Kendall Square, Cambridge Crossing (in innovation_corridor) are named in the N27 prospectus but are not separate BPDA polygons. They are listed as docs_only_subregions and roll up visually into their BPDA parents or adjacent zips at render time.",
+    "adjacent_zips": 7,
+    "truck_capacity_total": 50,
+    "truck_capacity_by_zone": {
+      "downtown_core": 12,
+      "innovation_corridor": 3,
+      "medical_academic": 6,
+      "neighborhood_density": 8,
+      "entertainment_venues": 7,
+      "adjacent_zip_expansion": 14,
+      "unassigned_future": 0
+    }
+  }
+}

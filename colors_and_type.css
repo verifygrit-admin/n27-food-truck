@@ -1,0 +1,243 @@
+/* =========================================================
+   N27 — Colors & Typography Foundation
+   Number 20 Seven LLC Design System
+   ========================================================= */
+
+/* ---------- Web fonts ---------- */
+/* Cormorant SC  — Trajan-alternative small caps for display headers (weightier than Cinzel) */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&display=swap");
+/* Cormorant Garamond — italic display + large quotes */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&display=swap");
+/* Lora — readable body serif, screen-optimized */
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap");
+/* Cinzel retained as fallback for existing deck parity */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap");
+
+:root {
+  /* ---------- Core Palette ---------- */
+  --n27-black: #0A0A0A;      /* Dominant dark surface */
+  --n27-ink: #1A1A1A;        /* Body text on ivory */
+  --n27-ivory: #F5EEE3;      /* Warm off-white — primary light surface */
+  --n27-cream: #FAF6EE;      /* Alternating-row / softer ivory */
+  --n27-rule: #DDD5C7;       /* Hairlines, table borders */
+  --n27-mute: #8A7E6E;       /* Warm gray — subtitles, captions */
+
+  /* ---------- Accent (the ONLY accent) ---------- */
+  /* Slightly cooler + denser than the original #4A5D3A — same hue family,
+     reads more punchy without raising saturation. */
+  --n27-lime: #3D5230;       /* Deep lime — rules, eyebrows, stats */
+  --n27-lime-dark: #293619;  /* Lime body-weight on ivory */
+  --n27-lime-soft: #6B8257;  /* Secondary ramp step for hover / tint */
+
+  /* ---------- Zone ramp (single-hue, for maps / data viz) ---------- */
+  --zone-downtown: #2C3722;
+  --zone-innovation: #4A5D3A;
+  --zone-medical: #6B8257;
+  --zone-density: #8FA577;
+  --zone-entertainment: #B4C59D;
+  --zone-adjacent: #D4DEC1;
+
+  /* ---------- Semantic foreground / background ---------- */
+  --fg-1: var(--n27-ink);        /* primary body */
+  --fg-2: var(--n27-mute);       /* secondary / captions */
+  --fg-accent: var(--n27-lime);  /* the accent */
+  --fg-on-dark: var(--n27-ivory);
+
+  --bg-1: #FFFFFF;               /* primary content surface */
+  --bg-2: var(--n27-ivory);      /* soft ivory surface */
+  --bg-3: var(--n27-cream);      /* faintest — table stripes */
+  --bg-dark: var(--n27-black);   /* dark surface */
+
+  /* ---------- Type families ---------- */
+  /* Display stack: Cormorant SC is a Trajan-style all-caps face with more weight
+     and a warmer terminal than Cinzel. Trajan Pro / Cinzel listed as fallbacks. */
+  --font-display: "Cormorant SC", "Trajan Pro", "Cinzel", "Playfair Display", Georgia, serif;
+  /* Body: Lora is designed for screens — more readable at small sizes than Georgia,
+     holds its weight at 400 better than Georgia does. */
+  --font-body: "Lora", Georgia, "Times New Roman", serif;
+  --font-ui: "Calibri", "Helvetica Neue", Arial, sans-serif; /* reserved for eyebrows/footers only */
+  --font-italic-display: "Cormorant Garamond", "Lora", Georgia, serif;
+
+  /* ---------- Type scale (desktop / deck) ---------- */
+  --type-eyebrow: 11px;        /* Calibri, bold, caps, tracked */
+  --type-caption: 12px;        /* Lora italic mute */
+  --type-body-sm: 14px;
+  --type-body: 16px;           /* Lora base — slightly bumped for readability */
+  --type-body-lg: 18px;
+  --type-subtitle: 20px;       /* Cormorant Garamond italic */
+  --type-h4: 22px;
+  --type-h3: 26px;
+  --type-h2: 32px;             /* slide titles max */
+  --type-h1: 46px;
+  --type-hero: 68px;
+
+  /* ---------- Tracking / spacing ---------- */
+  --track-tight: -0.01em;
+  --track-normal: 0;
+  --track-caps: 0.16em;        /* eyebrows */
+  --track-caps-wide: 0.22em;   /* small caps taglines */
+  --track-display: 0.08em;     /* Cinzel headers */
+  --track-hero: 0.04em;
+
+  /* ---------- Layout ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-0: 0px;             /* classical — no rounding */
+  --radius-1: 2px;             /* near-hairline */
+  --radius-2: 4px;
+
+  --hair: 1px solid var(--n27-rule);
+  --hair-lime: 2px solid var(--n27-lime);      /* bumped from 1.5 for more presence */
+  --hair-lime-bold: 3px solid var(--n27-lime); /* top-of-card stat rule */
+
+  /* ---------- Elevation ---------- */
+  --shadow-0: none;
+  --shadow-1: 0 1px 2px rgba(10, 10, 10, 0.04), 0 1px 1px rgba(10, 10, 10, 0.03);
+  --shadow-2: 0 2px 8px rgba(10, 10, 10, 0.06), 0 1px 2px rgba(10, 10, 10, 0.04);
+  --shadow-lift: 0 8px 24px rgba(10, 10, 10, 0.08);
+}
+
+/* =========================================================
+   Base elements — semantic defaults
+   ========================================================= */
+
+html, body {
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display / Headers — Cinzel, tracked, no italic */
+h1, h2, h3, h4, .h1, .h2, .h3, .h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--fg-1);
+  letter-spacing: var(--track-display);
+  line-height: 1.12;
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+}
+
+/* Cormorant SC renders small-caps natively — the family IS all-caps */
+h1, .h1 { font-size: var(--type-h1); font-weight: 700; letter-spacing: var(--track-hero); }
+h2, .h2 { font-size: var(--type-h2); font-weight: 700; }
+h3, .h3 { font-size: var(--type-h3); font-weight: 600; }
+h4, .h4 { font-size: var(--type-h4); font-weight: 600; }
+
+/* Italic serif subtitle — Cormorant Garamond italic (larger, more elegant than Georgia) */
+.subtitle {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: var(--type-subtitle);
+  color: var(--fg-1);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+/* Eyebrow — Calibri, caps, tracked, mute (or lime on dark) */
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--type-eyebrow);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--track-caps);
+  color: var(--fg-2);
+}
+
+.eyebrow--lime { color: var(--n27-lime); }
+.eyebrow--ivory { color: var(--n27-ivory); }
+
+/* Body */
+p { margin: 0 0 var(--space-4); text-wrap: pretty; }
+
+/* Muted / caption */
+.caption, figcaption, small.caption {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--type-caption);
+  color: var(--fg-2);
+}
+
+/* Big stat callout — heavier weight, tighter tracking for punch */
+.stat {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--n27-lime);
+  font-size: 44px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* Footer tag (column footer text) */
+.footer-tag {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+/* Category tagline lockup */
+.category-tagline {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--fg-2);
+  letter-spacing: var(--track-caps-wide);
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   Motifs — stars, hairlines
+   ========================================================= */
+
+.hairline-lime {
+  display: block;
+  width: 2.5in;
+  max-width: 220px;
+  height: 0;
+  border-top: 1.5px solid var(--n27-lime);
+}
+
+.hairline-rule {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-top: var(--hair);
+}
+
+.star-single::before { content: "★"; color: var(--n27-lime); }
+.star-trio { color: var(--n27-lime); letter-spacing: 0.4em; }
+.star-trio::before { content: "★ ★ ★"; }
+
+/* =========================================================
+   Utility surfaces
+   ========================================================= */
+
+.surface-ivory { background: var(--n27-ivory); color: var(--fg-1); }
+.surface-cream { background: var(--n27-cream); color: var(--fg-1); }
+.surface-white { background: #fff; color: var(--fg-1); }
+.surface-black { background: var(--n27-black); color: var(--fg-on-dark); }
+.surface-black .eyebrow { color: var(--n27-lime); }
+.surface-black h1, .surface-black h2, .surface-black h3, .surface-black h4 { color: var(--n27-ivory); }
+.surface-black .caption { color: #B8AE9E; }
+
+/* =========================================================
+   Print
+   ========================================================= */
+@media print {
+  html, body { background: #fff; }
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>N27 &mdash; Greater Boston Food Truck TAM</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <link rel="stylesheet" href="tam-map-styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="n27-header">
+      <div class="n27-brand">NUMBER 20 SEVEN</div>
+      <div class="n27-tagline">Real Estate &middot; Restaurants &middot; Mobile Food</div>
+    </header>
+
+    <div id="map" role="application" aria-label="Greater Boston food truck deployment map"></div>
+
+    <footer class="n27-footer">
+      <div class="n27-footer-brand">
+        Number 20 Seven LLC &middot; Real Estate &middot; Restaurants &middot; Mobile Food
+      </div>
+      <div class="n27-footer-credits">
+        Map by
+        <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>
+        &middot;
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+        &middot;
+        <a href="https://carto.com/attributions" target="_blank" rel="noopener">Carto</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Vendor scripts (not deferred; markercluster depends on Leaflet being global at parse time) -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- App script — defer so it runs after DOM parse but still after the vendor scripts above -->
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,8 +1,10 @@
-# Reference materials — kept locally, excluded from public repo
-Claude_Code_Sprint_Prompt.md
-N27_Brand_Guide.md
-N27_Investor_Deck.pptx
-N27_Prospectus.docx
+# Reference materials at repo root — kept locally, excluded from public repo.
+# Anchored with leading / so they match only at the root; the same-named
+# files inside docs/ (intentionally committed copies) are not affected.
+/Claude_Code_Sprint_Prompt.md
+/N27_Brand_Guide.md
+/N27_Investor_Deck.pptx
+/N27_Prospectus.docx
 
 # Claude Code local state
 .claude/
