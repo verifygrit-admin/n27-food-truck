@@ -1,6 +1,6 @@
 // N27 Food Truck TAM — interactive map logic.
 // Runs without a build step. Single non-modular script loaded via
-// <script src="app.js" defer> in index.html.
+// <script src="app.js" defer> in tam-map.html.
 //
 // Architecture:
 //   - constants (SITE_RED, stroke/fill/weight defaults)
@@ -232,11 +232,12 @@ Promise.all([
     const tierLabel = p.tier === 1 ? 'Tier 1 · Prime' : p.tier === 2 ? 'Tier 2 · Commercial' : 'Tier 3 · Neighborhood';
     const slotLabel = String(p.time_slots || '').split(',').map(s => s.trim()).filter(Boolean).join(' · ');
     const capLabel = p.capacity === 1 ? '1 truck slot' : `${p.capacity} concurrent truck slots`;
+    // Hierarchy mirrors zone popup: h3 -> eyebrow -> sub-metadata -> body.
     return `
       <div class="n27-popup">
         <h3>${escapeHTML(p.name)}</h3>
-        <div class="n27-popup-address">${escapeHTML(p.address)}</div>
         <div class="n27-popup-tier">${escapeHTML(tierLabel)}</div>
+        <div class="n27-popup-address">${escapeHTML(p.address)}</div>
         <div class="n27-popup-meta">Slots: <strong>${escapeHTML(slotLabel || 'not scheduled')}</strong></div>
         <div class="n27-popup-meta">Capacity: <strong>${escapeHTML(capLabel)}</strong></div>
       </div>`;
@@ -393,8 +394,6 @@ Promise.all([
     );
   }
 
-  const ALL_ZONE_KEYS = [...ACTIVE_ZONE_ORDER, 'unassigned_future'];
-
   function buildFilterHTML() {
     const layerRow = (key, label) => `
       <label class="n27-filter-row">
@@ -429,7 +428,9 @@ Promise.all([
 
         <div class="n27-filter-eyebrow" role="presentation">Zones</div>
         <div role="group" aria-label="Zone visibility">
-          ${ALL_ZONE_KEYS.map(zoneRow).join('')}
+          ${ACTIVE_ZONE_ORDER.map(zoneRow).join('')}
+          <hr class="n27-filter-rule" />
+          ${zoneRow('unassigned_future')}
         </div>
 
         <hr class="n27-filter-rule" />

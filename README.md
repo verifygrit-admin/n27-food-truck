@@ -6,15 +6,17 @@ An interactive Leaflet map visualizing the Greater Boston food-truck total addre
 
 ## Run locally
 
-The map reads its GeoJSON and `zones.json` files with `fetch()`. Chrome and most modern browsers block `fetch()` from `file://` URLs for security reasons, so opening `index.html` directly from Finder/Explorer will usually leave you staring at an empty basemap. Serve over HTTP instead:
+The map reads its GeoJSON and `zones.json` files with `fetch()`. Chrome and most modern browsers block `fetch()` from `file://` URLs for security reasons, so opening `tam-map.html` directly from Finder/Explorer will usually leave you staring at an empty basemap. Serve over HTTP instead:
 
 ```bash
 # from the repo root
 python -m http.server 8000
-# then open http://localhost:8000/ in your browser
+# then open http://localhost:8000/tam-map.html in your browser
 ```
 
 Any static server works (`npx serve`, `caddy file-server`, `php -S localhost:8000`). Do not use a build tool — there isn't one.
+
+> **Note:** there is intentionally no `index.html` at the repo root. The map lives at `/tam-map.html`. The root `index.html` slot is reserved for a full N27 investor site that will be integrated in a later pass. Visiting the bare Pages URL before that integration will return 404 — visit the `/tam-map.html` path directly.
 
 ## Data provenance
 
@@ -102,7 +104,7 @@ Cinzel is loaded from Google Fonts with the `display=swap` hint so the page rend
 
 ```
 n27-food-truck/
-├── index.html          ← HTML scaffold only
+├── tam-map.html        ← HTML scaffold for the map (served at /tam-map.html)
 ├── styles.css          ← All CSS (N27 palette, panels, popups, responsive)
 ├── app.js              ← All JS (map init, layers, legend, filter control)
 ├── README.md           ← you are here
@@ -114,6 +116,8 @@ n27-food-truck/
     ├── sites.geojson
     └── zones.json
 ```
+
+The repo root has no `index.html` by design; the investor site that will live there is a separate deliverable.
 
 ## License
 
