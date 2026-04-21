@@ -74,6 +74,21 @@ footer.n27-footer {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+}
+
+.n27-footer-brand {
+  font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--n27-rule);
+}
+
+.n27-footer-credits {
+  font-family: Georgia, serif;
+  color: var(--n27-mute);
+  font-size: 11px;
 }
 
 footer.n27-footer a { color: var(--n27-rule); text-decoration: none; }
@@ -114,6 +129,7 @@ footer.n27-footer a:hover { color: var(--n27-ivory); }
   border-bottom: 1px solid var(--n27-rule);
 }
 
+/* Shared eyebrow style for zone + tier labels (one rhythm across popup types) */
 .n27-popup-zone,
 .n27-popup-tier {
   font-family: 'Cinzel', Georgia, serif;
@@ -121,25 +137,43 @@ footer.n27-footer a:hover { color: var(--n27-ivory); }
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--n27-lime-dark);
-  margin: 4px 0 8px 0;
+  margin: 4px 0 6px 0;
+  line-height: 1.4;
 }
-
-.n27-popup-driver { color: var(--n27-ink); font-size: 12px; margin-bottom: 6px; }
-.n27-popup-capacity { color: var(--n27-lime-dark); font-size: 12px; }
-.n27-popup-mute { color: var(--n27-mute); font-style: italic; }
-/* Unmatched-polygon fallback style. Uses mute gray italic rather than
-   any red so --accent-site-red stays reserved for site markers. */
-.n27-popup-warn { color: var(--n27-mute); font-style: italic; font-weight: bold; }
 
 .n27-popup-address {
   color: var(--n27-mute);
   font-size: 11px;
-  margin: -2px 0 8px 0;
+  margin: 0 0 6px 0;
   font-style: italic;
+  line-height: 1.4;
 }
 
-.n27-popup-meta { font-size: 12px; color: var(--n27-ink); margin-top: 4px; }
+/* Shared body-line style for driver / meta rows */
+.n27-popup-driver,
+.n27-popup-meta {
+  color: var(--n27-ink);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0 0 4px 0;
+}
+
+.n27-popup-driver:last-child,
+.n27-popup-meta:last-child { margin-bottom: 0; }
+
+.n27-popup-capacity {
+  color: var(--n27-lime-dark);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
 .n27-popup-meta strong { color: var(--n27-lime-dark); }
+.n27-popup-mute { color: var(--n27-mute); font-style: italic; }
+
+/* Unmatched-polygon fallback style. Uses mute gray italic rather than
+   any red so --accent-site-red stays reserved for site markers. */
+.n27-popup-warn { color: var(--n27-mute); font-style: italic; font-weight: bold; }
 
 /* ---- Tooltips ---- */
 .leaflet-tooltip {
@@ -451,3 +485,37 @@ footer.n27-footer a:hover { color: var(--n27-ivory); }
   color: var(--n27-ivory);
   outline: none;
 }
+
+/* ---- Responsive stacking ----
+   Below 900px: reduce panel widths, tighten paddings.
+   Below 600px: panels render as header-only by default (user taps to expand);
+                body-visible state is driven by aria-expanded="true" on the panel. */
+@media (max-width: 900px) {
+  header.n27-header { padding: 10px 16px; gap: 12px; }
+  .n27-brand { font-size: 15px; }
+  .n27-tagline { font-size: 9px; letter-spacing: 0.18em; }
+  .n27-legend { width: 220px; }
+  .n27-filter { width: 200px; }
+  .n27-legend-body,
+  .n27-filter-body { padding: 8px 12px 10px 12px; }
+  footer.n27-footer { padding: 6px 16px; gap: 8px; font-size: 10px; }
+}
+
+@media (max-width: 600px) {
+  header.n27-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 8px 14px;
+  }
+  .n27-tagline { font-size: 8px; }
+  .n27-legend { width: 190px; }
+  .n27-filter { width: 180px; }
+
+  /* Start both panels collapsed on narrow screens. JS initial state is
+     'expanded=true'; a width-aware onAdd flips it to false at init. This
+     CSS selector is a second line of defence against overlap. */
+  .n27-legend[aria-expanded="false"] .n27-legend-body,
+  .n27-filter[aria-expanded="false"] .n27-filter-body { display: none; }
+}
+
