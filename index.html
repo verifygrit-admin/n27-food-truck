@@ -116,6 +116,83 @@
     .leaflet-container {
       font-family: Georgia, serif;
     }
+
+    /* N27-styled popups */
+    .leaflet-popup-content-wrapper {
+      background: var(--n27-cream);
+      color: var(--n27-ink);
+      border-radius: 2px;
+      box-shadow: 0 4px 18px rgba(10, 10, 10, 0.18);
+      border: 1px solid var(--n27-rule);
+    }
+
+    .leaflet-popup-tip {
+      background: var(--n27-cream);
+      border: 1px solid var(--n27-rule);
+    }
+
+    .leaflet-popup-content {
+      margin: 14px 18px;
+      font-family: Georgia, serif;
+      font-size: 13px;
+      line-height: 1.45;
+      min-width: 180px;
+    }
+
+    .n27-popup h3 {
+      margin: 0 0 6px 0;
+      padding: 0 0 6px 0;
+      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      font-size: 14px;
+      color: var(--n27-black);
+      border-bottom: 1px solid var(--n27-rule);
+    }
+
+    .n27-popup-zone {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--n27-lime-dark);
+      margin: 4px 0 8px 0;
+    }
+
+    .n27-popup-driver {
+      color: var(--n27-ink);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .n27-popup-capacity {
+      color: var(--n27-lime-dark);
+      font-size: 12px;
+    }
+
+    .n27-popup-mute {
+      color: var(--n27-mute);
+      font-style: italic;
+    }
+
+    .n27-popup-warn {
+      color: #B23A48;
+      font-weight: bold;
+    }
+
+    /* Leaflet tooltip: minimal N27 chrome */
+    .leaflet-tooltip {
+      background: var(--n27-ink);
+      color: var(--n27-ivory);
+      border: none;
+      box-shadow: 0 2px 8px rgba(10,10,10,0.22);
+      font-family: Georgia, serif;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 2px;
+    }
+
+    .leaflet-tooltip:before { display: none; }
   </style>
 </head>
 <body>
@@ -162,37 +239,152 @@
       maxZoom: 19,
     }).addTo(map);
 
-    // ---- Step 4: Plain unstyled GeoJSON layers ----
-    // Styling arrives in step 6. For now we render with Leaflet defaults
-    // to verify data correctness and positioning only.
+    // ---- Step 6: Zone-based choropleth styling ----
+    // All zone colors, labels, and capacities come from data/zones.json.
+    // Edit that file to reassign neighborhoods or change colors — no code
+    // changes needed.
+
+    const STROKE_ACTIVE = '#33412A';        // N27 lime dark
+    const STROKE_UNASSIGNED = '#8A7E6E';    // N27 mute
+    const DEBUG_COLOR = '#FF00FF';          // magenta — loud unmatched warning
+    const FILL_ACTIVE = 0.7;
+    const FILL_UNASSIGNED = 0.4;
+    const FILL_HOVER = 0.9;
+    const WEIGHT_BASE = 1;
+    const WEIGHT_HOVER = 2;
 
     Promise.all([
+      fetch('data/zones.json').then(r => r.json()),
       fetch('data/neighborhoods.geojson').then(r => r.json()),
       fetch('data/adjacent-zips.geojson').then(r => r.json()),
-    ]).then(([neighborhoods, adjZips]) => {
-      const nbhdLayer = L.geoJSON(neighborhoods, {
-        onEachFeature: (f, l) => {
-          const n = f.properties.name || f.properties.Name || '(unnamed)';
-          l.bindTooltip(n, { sticky: true });
+    ]).then(([zonesDoc, neighborhoods, adjZips]) => {
+      const zones = zonesDoc.zones;
+
+      // Build name → zoneKey lookups. zones.json is single source of truth.
+      const neighborhoodToZone = new Map();
+      const zipToZone = new Map();
+      for (const [zoneKey, zone] of Object.entries(zones)) {
+        (zone.neighborhoods || []).forEach(n => neighborhoodToZone.set(n, zoneKey));
+        (zone.zips || []).forEach(z => zipToZone.set(z, zoneKey));
+      }
+
+      const unmatched = [];
+
+      function baseStyle(zoneKey) {
+        const zone = zones[zoneKey];
+        if (!zone) {
+          return { fillColor: DEBUG_COLOR, fillOpacity: FILL_ACTIVE, color: DEBUG_COLOR, weight: WEIGHT_HOVER };
+        }
+        const isUnassigned = zoneKey === 'unassigned_future';
+        return {
+          fillColor: zone.color,
+          fillOpacity: isUnassigned ? FILL_UNASSIGNED : FILL_ACTIVE,
+          color: isUnassigned ? STROKE_UNASSIGNED : STROKE_ACTIVE,
+          weight: WEIGHT_BASE,
+        };
+      }
+
+      function hoverStyle(zoneKey) {
+        return { ...baseStyle(zoneKey), fillOpacity: FILL_HOVER, weight: WEIGHT_HOVER };
+      }
+
+      function escapeHTML(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[c]));
+      }
+
+      function popupHTML(name, zoneKey) {
+        const zone = zones[zoneKey];
+        if (!zone) {
+          return `<div class="n27-popup"><h3>${escapeHTML(name)}</h3>` +
+                 `<p class="n27-popup-warn">Unmatched — check zones.json</p></div>`;
+        }
+        const isUnassigned = zoneKey === 'unassigned_future';
+        const driver = isUnassigned
+          ? 'Outside current TAM — future expansion candidate'
+          : zone.demand_driver;
+        const capacity = isUnassigned
+          ? '<span class="n27-popup-mute">No trucks allocated</span>'
+          : `<strong>${zone.truck_capacity}</strong> ${zone.truck_capacity === 1 ? 'truck' : 'trucks'} allocated`;
+        return `
+          <div class="n27-popup">
+            <h3>${escapeHTML(name)}</h3>
+            <div class="n27-popup-zone">${escapeHTML(zone.label)}</div>
+            <div class="n27-popup-driver">${escapeHTML(driver)}</div>
+            <div class="n27-popup-capacity">${capacity}</div>
+          </div>`;
+      }
+
+      function tooltipHTML(name, zoneKey) {
+        const zone = zones[zoneKey];
+        if (!zone) return `<strong>${escapeHTML(name)}</strong> — unmatched`;
+        return `<strong>${escapeHTML(name)}</strong> &middot; ${escapeHTML(zone.label)}`;
+      }
+
+      function makeInteractionHandler(getLayerGroup, getKey, getName) {
+        return (feature, layer) => {
+          const key = getKey(feature);
+          const name = getName(feature);
+          layer.bindTooltip(tooltipHTML(name, key), { sticky: true, direction: 'auto' });
+          layer.bindPopup(popupHTML(name, key), { maxWidth: 280, minWidth: 200 });
+          layer.on('mouseover', e => {
+            e.target.setStyle(hoverStyle(key));
+            e.target.bringToFront();
+          });
+          layer.on('mouseout', e => {
+            getLayerGroup().resetStyle(e.target);
+          });
+        };
+      }
+
+      // Forward-declare so mouseout handlers can close over the layer groups
+      let nbhdLayer, zipLayer;
+
+      // Neighborhoods layer
+      nbhdLayer = L.geoJSON(neighborhoods, {
+        style: f => {
+          const key = neighborhoodToZone.get(f.properties.name);
+          if (!key) {
+            unmatched.push(f.properties.name);
+            return baseStyle(null);
+          }
+          return baseStyle(key);
         },
+        onEachFeature: makeInteractionHandler(
+          () => nbhdLayer,
+          f => neighborhoodToZone.get(f.properties.name),
+          f => f.properties.name
+        ),
       }).addTo(map);
 
-      const zipLayer = L.geoJSON(adjZips, {
-        onEachFeature: (f, l) => {
-          l.bindTooltip('ZIP ' + f.properties.zip, { sticky: true });
-        },
+      // Adjacent zips layer — all 7 fall in adjacent_zip_expansion
+      zipLayer = L.geoJSON(adjZips, {
+        style: f => baseStyle(zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion'),
+        onEachFeature: makeInteractionHandler(
+          () => zipLayer,
+          f => zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion',
+          f => 'ZIP ' + f.properties.zip
+        ),
       }).addTo(map);
 
+      // Report
+      const matched = neighborhoods.features.length - unmatched.length;
       console.log(
-        '[N27] Layers loaded. neighborhoods=' + neighborhoods.features.length +
-        ' adjacent_zips=' + adjZips.features.length
+        `[N27] Layers styled. neighborhoods: ${matched}/${neighborhoods.features.length} matched, ` +
+        `zips: ${zipLayer.getLayers().length}/7 rendered`
       );
+      if (unmatched.length) {
+        console.warn('[N27] Unmatched neighborhood polygons (rendered magenta):', unmatched);
+      } else {
+        console.log('[N27] All BPDA polygons matched to a zone.');
+      }
 
-      // Fit to combined bounds so both layers are guaranteed in view
+      // Fit to combined bounds
       const group = L.featureGroup([nbhdLayer, zipLayer]);
       map.fitBounds(group.getBounds(), { padding: [20, 20] });
     }).catch(err => {
-      console.error('[N27] Failed to load GeoJSON layers:', err);
+      console.error('[N27] Failed to load data layers:', err);
     });
 
     console.log('[N27] Map scaffolded.');
