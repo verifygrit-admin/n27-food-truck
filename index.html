@@ -70,6 +70,14 @@
       maxZoom: 19,
     }).addTo(map);
 
+    // Custom pane for public-site markers + cluster icons. z-index 650 puts
+    // them above the default overlayPane (400) where L.GeoJSON polygons and
+    // SVG circleMarkers would otherwise compete for pointer events. This
+    // eliminates the polygon-steals-the-click bug when a site marker sits
+    // over a zone polygon.
+    map.createPane('n27-sites');
+    map.getPane('n27-sites').style.zIndex = 650;
+
     // ---- Step 6: Zone-based choropleth styling ----
     // All zone colors, labels, and capacities come from data/zones.json.
     // Edit that file to reassign neighborhoods or change colors — no code
@@ -213,14 +221,19 @@
       }
 
       // ---- Public sites as clustered markers ----
+      // Red (#990011) is reserved in the N27 map for city-designated active public vending sites only.
+      // Do NOT introduce red anywhere else in this map (zones, panels, typography, cluster badges for
+      // anything other than site clusters). Breaking this rule causes brand drift.
+      const SITE_RED = '#990011';
       const SITE_COUNT_AUTHORITATIVE = sites.metadata && sites.metadata.site_count || sites.features.length;
 
       function siteMarker(lngLat) {
         return L.circleMarker(L.latLng(lngLat[1], lngLat[0]), {
+          pane: 'n27-sites',     // above polygons so clicks land on the marker, not the zone beneath
           radius: 7,
-          fillColor: '#4A5D3A',
+          fillColor: SITE_RED,
           fillOpacity: 1,
-          color: '#F5EEE3',
+          color: '#F5EEE3',      // ivory border
           weight: 1.5,
         });
       }
@@ -240,6 +253,7 @@
       }
 
       const clusterLayer = L.markerClusterGroup({
+        clusterPane: 'n27-sites',  // cluster icons ride the site pane (z-index 650)
         showCoverageOnHover: false,
         spiderfyOnMaxZoom: true,
         maxClusterRadius: 40,
@@ -247,8 +261,8 @@
           const count = cluster.getChildCount();
           const size = count < 5 ? 32 : count < 10 ? 38 : 44;
           return L.divIcon({
-            html: `<div class="n27-cluster" style="width:${size}px;height:${size}px;">${count}</div>`,
-            className: 'n27-cluster-wrapper',
+            html: `<div class="n27-site-cluster" style="width:${size}px;height:${size}px;">${count}</div>`,
+            className: 'n27-site-cluster-wrapper',
             iconSize: L.point(size, size),
           });
         },
