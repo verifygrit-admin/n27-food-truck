@@ -162,12 +162,39 @@
       maxZoom: 19,
     }).addTo(map);
 
-    // ---- Scaffolding placeholders ----
-    // Layers will populate in subsequent steps.
-    // Step 4: neighborhoods.geojson, adjacent-zips.geojson
-    // Step 5-6: zones.json + choropleth styling
-    // Step 7: sites.geojson as marker cluster
-    // Step 8-9: legend + filter panels
+    // ---- Step 4: Plain unstyled GeoJSON layers ----
+    // Styling arrives in step 6. For now we render with Leaflet defaults
+    // to verify data correctness and positioning only.
+
+    Promise.all([
+      fetch('data/neighborhoods.geojson').then(r => r.json()),
+      fetch('data/adjacent-zips.geojson').then(r => r.json()),
+    ]).then(([neighborhoods, adjZips]) => {
+      const nbhdLayer = L.geoJSON(neighborhoods, {
+        onEachFeature: (f, l) => {
+          const n = f.properties.name || f.properties.Name || '(unnamed)';
+          l.bindTooltip(n, { sticky: true });
+        },
+      }).addTo(map);
+
+      const zipLayer = L.geoJSON(adjZips, {
+        onEachFeature: (f, l) => {
+          l.bindTooltip('ZIP ' + f.properties.zip, { sticky: true });
+        },
+      }).addTo(map);
+
+      console.log(
+        '[N27] Layers loaded. neighborhoods=' + neighborhoods.features.length +
+        ' adjacent_zips=' + adjZips.features.length
+      );
+
+      // Fit to combined bounds so both layers are guaranteed in view
+      const group = L.featureGroup([nbhdLayer, zipLayer]);
+      map.fitBounds(group.getBounds(), { padding: [20, 20] });
+    }).catch(err => {
+      console.error('[N27] Failed to load GeoJSON layers:', err);
+    });
+
     console.log('[N27] Map scaffolded.');
   </script>
 </body>
