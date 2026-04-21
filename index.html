@@ -24,214 +24,7 @@
     href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
   />
 
-  <style>
-    :root {
-      --n27-black: #0A0A0A;
-      --n27-ink: #1A1A1A;
-      --n27-ivory: #F5EEE3;
-      --n27-lime: #4A5D3A;
-      --n27-lime-dark: #33412A;
-      --n27-mute: #8A7E6E;
-      --n27-rule: #DDD5C7;
-      --n27-cream: #FAF6EE;
-
-      --zone-downtown: #2C3722;
-      --zone-innovation: #4A5D3A;
-      --zone-medical: #6B8257;
-      --zone-density: #8FA577;
-      --zone-entertainment: #B4C59D;
-      --zone-adjacent: #D4DEC1;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Georgia, 'Times New Roman', serif;
-      color: var(--n27-ink);
-      background: var(--n27-cream);
-    }
-
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    header.n27-header {
-      background: var(--n27-black);
-      color: var(--n27-ivory);
-      padding: 14px 24px;
-      border-bottom: 1px solid var(--n27-lime-dark);
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .n27-brand {
-      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      font-size: 18px;
-    }
-
-    .n27-tagline {
-      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
-      font-weight: 500;
-      letter-spacing: 0.22em;
-      font-size: 10px;
-      color: var(--n27-rule);
-      text-transform: uppercase;
-    }
-
-    #map {
-      flex: 1 1 auto;
-      width: 100%;
-      background: var(--n27-cream);
-    }
-
-    footer.n27-footer {
-      background: var(--n27-ink);
-      color: var(--n27-mute);
-      font-size: 11px;
-      padding: 8px 24px;
-      border-top: 1px solid var(--n27-lime-dark);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    footer.n27-footer a {
-      color: var(--n27-rule);
-      text-decoration: none;
-    }
-
-    footer.n27-footer a:hover { color: var(--n27-ivory); }
-
-    /* Leaflet attribution blends with N27 palette */
-    .leaflet-container {
-      font-family: Georgia, serif;
-    }
-
-    /* N27-styled popups */
-    .leaflet-popup-content-wrapper {
-      background: var(--n27-cream);
-      color: var(--n27-ink);
-      border-radius: 2px;
-      box-shadow: 0 4px 18px rgba(10, 10, 10, 0.18);
-      border: 1px solid var(--n27-rule);
-    }
-
-    .leaflet-popup-tip {
-      background: var(--n27-cream);
-      border: 1px solid var(--n27-rule);
-    }
-
-    .leaflet-popup-content {
-      margin: 14px 18px;
-      font-family: Georgia, serif;
-      font-size: 13px;
-      line-height: 1.45;
-      min-width: 180px;
-    }
-
-    .n27-popup h3 {
-      margin: 0 0 6px 0;
-      padding: 0 0 6px 0;
-      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      font-size: 14px;
-      color: var(--n27-black);
-      border-bottom: 1px solid var(--n27-rule);
-    }
-
-    .n27-popup-zone {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--n27-lime-dark);
-      margin: 4px 0 8px 0;
-    }
-
-    .n27-popup-driver {
-      color: var(--n27-ink);
-      font-size: 12px;
-      margin-bottom: 6px;
-    }
-
-    .n27-popup-capacity {
-      color: var(--n27-lime-dark);
-      font-size: 12px;
-    }
-
-    .n27-popup-mute {
-      color: var(--n27-mute);
-      font-style: italic;
-    }
-
-    .n27-popup-warn {
-      color: #B23A48;
-      font-weight: bold;
-    }
-
-    /* Leaflet tooltip: minimal N27 chrome */
-    .leaflet-tooltip {
-      background: var(--n27-ink);
-      color: var(--n27-ivory);
-      border: none;
-      box-shadow: 0 2px 8px rgba(10,10,10,0.22);
-      font-family: Georgia, serif;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 2px;
-    }
-
-    .leaflet-tooltip:before { display: none; }
-
-    /* N27 marker cluster icon — lime with ivory text */
-    .n27-cluster {
-      background: var(--n27-lime);
-      color: var(--n27-ivory);
-      border-radius: 50%;
-      border: 2px solid var(--n27-ivory);
-      box-shadow: 0 2px 6px rgba(10,10,10,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Cinzel', Georgia, serif;
-      font-weight: 600;
-      font-size: 12px;
-      letter-spacing: 0.04em;
-    }
-
-    /* Site popup addendum */
-    .n27-popup-address {
-      color: var(--n27-mute);
-      font-size: 11px;
-      margin: -2px 0 8px 0;
-      font-style: italic;
-    }
-    .n27-popup-tier {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--n27-lime-dark);
-      margin: 2px 0 6px 0;
-    }
-    .n27-popup-meta {
-      font-size: 12px;
-      color: var(--n27-ink);
-      margin-top: 4px;
-    }
-    .n27-popup-meta strong { color: var(--n27-lime-dark); }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="app">
@@ -471,7 +264,107 @@
 
       console.log(`[N27] Public sites rendered. sites: ${sites.features.length}/${SITE_COUNT_AUTHORITATIVE}`);
 
-      // Fit to combined bounds of polygons only (not sites — they're all inside anyway)
+      // ---- Legend control (top-right, collapsible) ----
+      const ACTIVE_ZONE_ORDER = [
+        'downtown_core',
+        'innovation_corridor',
+        'medical_academic',
+        'neighborhood_density',
+        'entertainment_venues',
+        'adjacent_zip_expansion',
+      ];
+
+      function buildLegendHTML() {
+        const rowForZone = (zoneKey) => {
+          const z = zones[zoneKey];
+          // Swatch uses the same fill color + opacity + stroke as the map polygons
+          const swatchStyle = `background:${z.color}; opacity:0.7; border-color:${STROKE_ACTIVE};`;
+          return `
+            <div class="n27-legend-row">
+              <span class="n27-legend-swatch" style="${swatchStyle}"></span>
+              <span class="n27-legend-label">${escapeHTML(z.label)}</span>
+              <span class="n27-legend-figure">${z.truck_capacity}</span>
+            </div>`;
+        };
+
+        const unassigned = zones.unassigned_future;
+        const unassignedRow = `
+          <div class="n27-legend-row">
+            <span class="n27-legend-swatch n27-legend-swatch-unassigned" style="background:${unassigned.color}; opacity:${unassigned.opacity || 0.4};"></span>
+            <span class="n27-legend-label n27-legend-label-mute">${escapeHTML(unassigned.label)}</span>
+          </div>`;
+
+        const totalCapacity = ACTIVE_ZONE_ORDER.reduce((s, k) => s + (zones[k].truck_capacity || 0), 0);
+        const sitesActive = sites.features.length;
+
+        return `
+          <div class="n27-legend-body">
+            <div class="n27-legend-section-label">Deployment zones</div>
+            ${ACTIVE_ZONE_ORDER.map(rowForZone).join('')}
+            <hr class="n27-legend-rule" />
+            ${unassignedRow}
+
+            <div class="n27-legend-section-label">Public sites</div>
+            <div class="n27-legend-row">
+              <span class="n27-legend-dot" aria-hidden="true"></span>
+              <span class="n27-legend-label n27-legend-label-small">
+                City-designated public sites (${sitesActive} active as of Spring 2026)
+              </span>
+            </div>
+
+            <div class="n27-legend-total">
+              <span class="n27-legend-total-label">Total TAM capacity</span>
+              <span class="n27-legend-total-figure">${totalCapacity} trucks by 2028</span>
+            </div>
+          </div>`;
+      }
+
+      const LegendControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd() {
+          let expanded = true;
+          const container = L.DomUtil.create('div', 'n27-legend');
+          container.setAttribute('role', 'region');
+          container.setAttribute('aria-label', 'Map legend');
+          container.setAttribute('aria-expanded', 'true');
+
+          function render() {
+            const chevron = expanded ? '&#9662;' : '&#9656;'; // ▾ ▸
+            container.innerHTML = `
+              <div class="n27-legend-header" role="button" tabindex="0"
+                   aria-expanded="${expanded}">
+                <span class="n27-legend-title">Legend</span>
+                <span class="n27-legend-chevron" aria-hidden="true">${chevron}</span>
+              </div>
+              ${expanded ? buildLegendHTML() : ''}
+            `;
+            container.setAttribute('aria-expanded', String(expanded));
+          }
+
+          function toggle() { expanded = !expanded; render(); }
+
+          L.DomEvent.on(container, 'click', e => {
+            const header = e.target.closest('.n27-legend-header');
+            if (header) { L.DomEvent.stopPropagation(e); toggle(); }
+          });
+          L.DomEvent.on(container, 'keydown', e => {
+            const header = e.target.closest('.n27-legend-header');
+            if (header && (e.key === 'Enter' || e.key === ' ')) {
+              L.DomEvent.preventDefault(e);
+              toggle();
+            }
+          });
+          // Prevent map pan/zoom interactions bubbling from the legend
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+
+          render();
+          return container;
+        },
+      });
+      map.addControl(new LegendControl());
+
+      // Fit to combined bounds of polygons only (sites are all inside)
       const group = L.featureGroup([nbhdLayer, zipLayer]);
       map.fitBounds(group.getBounds(), { padding: [20, 20] });
     }).catch(err => {
