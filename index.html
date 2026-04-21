@@ -110,6 +110,23 @@
 
       const unmatched = [];
 
+      // Filter state — session-scoped, no localStorage.
+      // Layer-level overrides add/remove the whole Leaflet layer from the map.
+      // Zone-level hides individual polygons by setting fill: false, stroke: false
+      // (SVG pointer-events: visiblePainted means no-fill + no-stroke = no clicks).
+      const filterState = {
+        layers: { zones: true, zips: true, sites: true },
+        zones: {
+          downtown_core: true,
+          innovation_corridor: true,
+          medical_academic: true,
+          neighborhood_density: true,
+          entertainment_venues: true,
+          adjacent_zip_expansion: true,
+          unassigned_future: true,
+        },
+      };
+
       function baseStyle(zoneKey) {
         const zone = zones[zoneKey];
         if (!zone) {
@@ -124,7 +141,19 @@
         };
       }
 
+      // Filter-aware style — returns fully transparent, non-interactive when
+      // the zone is unchecked. Falls through to baseStyle otherwise.
+      function polygonStyleFor(zoneKey) {
+        if (zoneKey && filterState.zones[zoneKey] === false) {
+          return { fill: false, stroke: false, fillOpacity: 0, opacity: 0 };
+        }
+        return baseStyle(zoneKey);
+      }
+
       function hoverStyle(zoneKey) {
+        if (zoneKey && filterState.zones[zoneKey] === false) {
+          return polygonStyleFor(zoneKey);
+        }
         return { ...baseStyle(zoneKey), fillOpacity: FILL_HOVER, weight: WEIGHT_HOVER };
       }
 
@@ -189,7 +218,7 @@
             unmatched.push(f.properties.name);
             return baseStyle(null);
           }
-          return baseStyle(key);
+          return polygonStyleFor(key);
         },
         onEachFeature: makeInteractionHandler(
           () => nbhdLayer,
@@ -200,7 +229,7 @@
 
       // Adjacent zips layer — all 7 fall in adjacent_zip_expansion
       zipLayer = L.geoJSON(adjZips, {
-        style: f => baseStyle(zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion'),
+        style: f => polygonStyleFor(zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion'),
         onEachFeature: makeInteractionHandler(
           () => zipLayer,
           f => zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion',
@@ -377,6 +406,153 @@
         },
       });
       map.addControl(new LegendControl());
+
+      // ---- Filter control (top-left, below zoom) ----
+      // Layer-level toggles add/remove the whole Leaflet layer from the map.
+      // Zone-level toggles hide individual polygons by style (fill:false,
+      // stroke:false -> non-interactive under SVG pointer-events rules).
+      // Legend does NOT mirror filter state — legend is reference docs.
+
+      function applyLayerToggle(key, checked) {
+        const layerByKey = { zones: nbhdLayer, zips: zipLayer, sites: clusterLayer };
+        const layer = layerByKey[key];
+        if (!layer) return;
+        if (checked && !map.hasLayer(layer)) map.addLayer(layer);
+        if (!checked && map.hasLayer(layer)) map.removeLayer(layer);
+      }
+
+      function applyZoneFilter() {
+        // Re-style both polygon layers; Leaflet calls the style fn per feature.
+        nbhdLayer.setStyle(f => {
+          const key = neighborhoodToZone.get(f.properties.name);
+          return key ? polygonStyleFor(key) : baseStyle(null);
+        });
+        zipLayer.setStyle(f =>
+          polygonStyleFor(zipToZone.get(f.properties.zip) || 'adjacent_zip_expansion')
+        );
+      }
+
+      const ALL_ZONE_KEYS = [...ACTIVE_ZONE_ORDER, 'unassigned_future'];
+
+      function buildFilterHTML() {
+        const layerRow = (key, label) => `
+          <label class="n27-filter-row">
+            <input type="checkbox" data-filter-layer="${key}" ${filterState.layers[key] ? 'checked' : ''} />
+            <span class="n27-filter-label">${escapeHTML(label)}</span>
+          </label>`;
+        const zoneRow = (zoneKey) => {
+          const z = zones[zoneKey];
+          const isUnassigned = zoneKey === 'unassigned_future';
+          const swatchStyle = isUnassigned
+            ? `background:${z.color}; opacity:${z.opacity || 0.4};`
+            : `background:${z.color}; opacity:0.7; border-color:${STROKE_ACTIVE};`;
+          const swatchClass = isUnassigned ? 'n27-filter-swatch n27-filter-swatch-unassigned' : 'n27-filter-swatch';
+          const labelClass = isUnassigned ? 'n27-filter-label n27-filter-label-mute' : 'n27-filter-label';
+          return `
+            <label class="n27-filter-row">
+              <input type="checkbox" data-filter-zone="${zoneKey}" ${filterState.zones[zoneKey] ? 'checked' : ''} />
+              <span class="${swatchClass}" style="${swatchStyle}"></span>
+              <span class="${labelClass}">${escapeHTML(z.label)}</span>
+            </label>`;
+        };
+        return `
+          <div class="n27-filter-body">
+            <div class="n27-filter-eyebrow" role="presentation">Layers</div>
+            <div role="group" aria-label="Layer visibility">
+              ${layerRow('zones', 'Deployment zones')}
+              ${layerRow('zips', 'Adjacent zips')}
+              ${layerRow('sites', 'Public sites')}
+            </div>
+
+            <hr class="n27-filter-rule" />
+
+            <div class="n27-filter-eyebrow" role="presentation">Zones</div>
+            <div role="group" aria-label="Zone visibility">
+              ${ALL_ZONE_KEYS.map(zoneRow).join('')}
+            </div>
+
+            <hr class="n27-filter-rule" />
+
+            <div class="n27-filter-actions">
+              <button type="button" class="n27-filter-reset" data-filter-reset>Reset filters</button>
+            </div>
+          </div>`;
+      }
+
+      const FilterControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd() {
+          let expanded = true;
+          const container = L.DomUtil.create('div', 'n27-filter');
+          container.setAttribute('role', 'region');
+          container.setAttribute('aria-label', 'Map filters');
+          container.setAttribute('aria-expanded', 'true');
+
+          function render() {
+            const chevron = expanded ? '&#9662;' : '&#9656;';
+            container.innerHTML = `
+              <div class="n27-filter-header" role="button" tabindex="0" aria-expanded="${expanded}">
+                <span class="n27-filter-title">Filters</span>
+                <span class="n27-filter-chevron" aria-hidden="true">${chevron}</span>
+              </div>
+              ${expanded ? buildFilterHTML() : ''}
+            `;
+            container.setAttribute('aria-expanded', String(expanded));
+          }
+
+          function togglePanel() { expanded = !expanded; render(); }
+
+          function onInputChange(e) {
+            const t = e.target;
+            if (t.matches('input[data-filter-layer]')) {
+              const key = t.dataset.filterLayer;
+              filterState.layers[key] = t.checked;
+              applyLayerToggle(key, t.checked);
+            } else if (t.matches('input[data-filter-zone]')) {
+              const key = t.dataset.filterZone;
+              filterState.zones[key] = t.checked;
+              applyZoneFilter();
+            }
+          }
+
+          function onReset() {
+            Object.keys(filterState.layers).forEach(k => { filterState.layers[k] = true; });
+            Object.keys(filterState.zones).forEach(k => { filterState.zones[k] = true; });
+            applyLayerToggle('zones', true);
+            applyLayerToggle('zips', true);
+            applyLayerToggle('sites', true);
+            applyZoneFilter();
+            render();
+          }
+
+          L.DomEvent.on(container, 'click', e => {
+            if (e.target.closest('.n27-filter-reset')) {
+              L.DomEvent.stopPropagation(e);
+              onReset();
+              return;
+            }
+            const header = e.target.closest('.n27-filter-header');
+            if (header) {
+              L.DomEvent.stopPropagation(e);
+              togglePanel();
+            }
+          });
+          L.DomEvent.on(container, 'keydown', e => {
+            const header = e.target.closest('.n27-filter-header');
+            if (header && (e.key === 'Enter' || e.key === ' ')) {
+              L.DomEvent.preventDefault(e);
+              togglePanel();
+            }
+          });
+          L.DomEvent.on(container, 'change', onInputChange);
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+
+          render();
+          return container;
+        },
+      });
+      map.addControl(new FilterControl());
 
       // Fit to combined bounds of polygons only (sites are all inside)
       const group = L.featureGroup([nbhdLayer, zipLayer]);
