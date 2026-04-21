@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>N27 — Greater Boston Food Truck TAM</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+  />
+
+  <style>
+    :root {
+      --n27-black: #0A0A0A;
+      --n27-ink: #1A1A1A;
+      --n27-ivory: #F5EEE3;
+      --n27-lime: #4A5D3A;
+      --n27-lime-dark: #33412A;
+      --n27-mute: #8A7E6E;
+      --n27-rule: #DDD5C7;
+      --n27-cream: #FAF6EE;
+
+      --zone-downtown: #2C3722;
+      --zone-innovation: #4A5D3A;
+      --zone-medical: #6B8257;
+      --zone-density: #8FA577;
+      --zone-entertainment: #B4C59D;
+      --zone-adjacent: #D4DEC1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--n27-ink);
+      background: var(--n27-cream);
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header.n27-header {
+      background: var(--n27-black);
+      color: var(--n27-ivory);
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--n27-lime-dark);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .n27-brand {
+      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: 18px;
+    }
+
+    .n27-tagline {
+      font-family: 'Cinzel', 'Trajan Pro', 'Playfair Display', Georgia, serif;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      font-size: 10px;
+      color: var(--n27-rule);
+      text-transform: uppercase;
+    }
+
+    #map {
+      flex: 1 1 auto;
+      width: 100%;
+      background: var(--n27-cream);
+    }
+
+    footer.n27-footer {
+      background: var(--n27-ink);
+      color: var(--n27-mute);
+      font-size: 11px;
+      padding: 8px 24px;
+      border-top: 1px solid var(--n27-lime-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    footer.n27-footer a {
+      color: var(--n27-rule);
+      text-decoration: none;
+    }
+
+    footer.n27-footer a:hover { color: var(--n27-ivory); }
+
+    /* Leaflet attribution blends with N27 palette */
+    .leaflet-container {
+      font-family: Georgia, serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="n27-header">
+      <div class="n27-brand">NUMBER 20 SEVEN</div>
+      <div class="n27-tagline">Real Estate &middot; Restaurants &middot; Mobile Food</div>
+    </header>
+
+    <div id="map" role="application" aria-label="Greater Boston food truck deployment map"></div>
+
+    <footer class="n27-footer">
+      <div>Greater Boston Food Truck TAM &mdash; N27 deployment zones</div>
+      <div>
+        Basemap &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+        contributors, tiles by <a href="https://carto.com/attributions" target="_blank" rel="noopener">Carto</a>
+      </div>
+    </footer>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    // ---- Map initialization ----
+    const BOSTON_CENTER = [42.3601, -71.0589];
+    const DEFAULT_ZOOM = 12;
+
+    const map = L.map('map', {
+      center: BOSTON_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: true,
+      attributionControl: true,
+    });
+
+    // Carto Positron — low-chroma basemap that lets the N27 lime ramp stay dominant
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    // ---- Scaffolding placeholders ----
+    // Layers will populate in subsequent steps.
+    // Step 4: neighborhoods.geojson, adjacent-zips.geojson
+    // Step 5-6: zones.json + choropleth styling
+    // Step 7: sites.geojson as marker cluster
+    // Step 8-9: legend + filter panels
+    console.log('[N27] Map scaffolded.');
+  </script>
+</body>
+</html>
