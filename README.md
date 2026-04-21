@@ -2,7 +2,8 @@
 
 This repo contains the **Number 20 Seven LLC (N27)** investor site and the standalone Greater Boston food-truck TAM map it embeds. The landing page (`index.html`) walks an investor through thesis, market, TAM, model, a 16-slide deck, and ask. The map (`tam-map.html`) stands alone as a Leaflet visualization pairing a six-zone choropleth of N27's Boston deployment thesis with the 13 city-designated active public vending sites. Shared design tokens live in `colors_and_type.css`; the design system is documented in `docs/DESIGN_SYSTEM.md`.
 
-> Live site: _coming soon once GitHub Pages is enabled_
+**Live site:** [https://verifygrit-admin.github.io/n27-food-truck/](https://verifygrit-admin.github.io/n27-food-truck/)
+**Standalone TAM map:** [https://verifygrit-admin.github.io/n27-food-truck/tam-map.html](https://verifygrit-admin.github.io/n27-food-truck/tam-map.html)
 
 ## Run locally
 
